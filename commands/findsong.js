@@ -17,8 +17,7 @@ module.exports.run = async function ({ api, event, args }) {
     const url = attachment?.url || args[0];
     if (!url) return api.sendMessage("❌ Vui lòng reply một audio/video hoặc cung cấp URL.\n\nCách dùng:\n• Reply một audio/video\n• /findsong <url>", threadID, messageID);
 
-    api.sendMessage("🔍 Đang nhận diện bài hát...", threadID, messageID);
-
+    api.setMessageReaction("🔍", messageID, threadID);
     const response = await require("axios").get("https://lunarkrystal.qzz.io/api/findSong", { params: { url, author: this.config.credits } } );
     const { data } = response;
     if (data?.status !== "success" || !data.title) return api.sendMessage("❌ Không nhận diện được bài hát.", threadID, messageID);
@@ -28,8 +27,7 @@ module.exports.run = async function ({ api, event, args }) {
       `• Tên: ${data.title}\n` +
       `• Nghệ sĩ: ${data.artist || "Không rõ"}\n` +
       `• Album: ${data.album || "Không rõ"}\n` +
-      `• Năm: ${data.year || "Không rõ"}\n` +
-      `📝 Thả 😆 để tìm bài hát!`;
+      `• Năm: ${data.year || "Không rõ"}\n`
 
     return api.sendMessage(resultMessage, threadID, messageID);
   } catch (err) {
