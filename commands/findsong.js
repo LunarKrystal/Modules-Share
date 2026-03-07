@@ -37,5 +37,3 @@ module.exports.run = async function ({ api, event, args }) {
     return api.sendMessage("❌ Có lỗi khi nhận diện bài hát.", threadID, messageID);
   }
 };
-
-};
