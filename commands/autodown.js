@@ -2,17 +2,6 @@ const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
 
-const autodownConfig = {
-    name: "autodown",
-    version: "1.0.7",
-    hasPermssion: 0,
-    credits: "Khôi",
-    description: "Tự động tải video/ảnh/audio từ các nền tảng",
-    commandCategory: "Tiện ích",
-    usages: "[on/off/status/list] hoặc gửi link",
-    cooldowns: 5,
-};
-
 const supportedDomains = [
     "youtube.com", "youtu.be", "facebook.com", "fb.watch", "instagram.com", "threads.net",
     "tiktok.com", "vt.tiktok.com", "www.tiktok.com", "v.douyin.com", "douyin.com", "iesdouyin.com",
@@ -22,18 +11,27 @@ const supportedDomains = [
     "streamable.com", "snapchat.com", "linkedin.com", "imgur.com", "9gag.com", "xiaohongshu.com", 
     "xhslink.com", "weibo.com", "sohu.com", "ixigua.com", "likee.video", "hipi.co.in", 
     "sharechat.com", "getstickerpack.com", "bitchute.com", "febspot.com", "bandcamp.com"
-];
+]; // Thêm/xoá miền ở đây, nếu bạn đã có kinh nghiệm thì có thể dùng Regex thay cho .includes()
 
 const cacheDir = path.join(__dirname, "cache");
 fs.ensureDirSync(cacheDir);
 
-const stateFile = path.join(cacheDir, "autodown_state.json");
+const stateFile = path.join(cacheDir, "LunarKrystal_atd.json");
 const stateManager = {
     get: () => fs.existsSync(stateFile) ? fs.readJsonSync(stateFile) : {},
     set: (data) => fs.writeJsonSync(stateFile, data, { spaces: 4 })
 };
 
-module.exports.config = autodownConfig;
+module.exports.config = {
+    name: "autodown",
+    version: "1.0.8",
+    hasPermssion: 2, // Tránh thành viên nhóm phá
+    credits: "Khôi", // Gemini refactored | Hãy tôn trọng tác giả và đừng thay credit để nhận update nhé ae
+    description: "Tự động tải video/ảnh/audio từ các nền tảng",
+    commandCategory: "Tiện ích",
+    usages: "[on/off/status/list] hoặc gửi link",
+    cooldowns: 5,
+};
 
 module.exports.run = async ({ api, event, args }) => {
     const { threadID } = event;
@@ -74,7 +72,7 @@ module.exports.handleEvent = async ({ api, event }) => {
         const mediaData = res.data;
 
         if (!mediaData) return;
-        const medias = mediaData.medias || [];
+        const medias = mediaData.medias || []; // Đối với các endpoint mà tôi sorted dữ liệu thì phần này bạn cần thay đổi
         
         const paths = [];
         const download = async (url, type, ext) => {
@@ -86,7 +84,7 @@ module.exports.handleEvent = async ({ api, event }) => {
         };
 
         let attachment = null;
-        let hasSentMedia = false;
+        let hasSentMedia = false; // Để tránh việc gửi nhiều video/audio cùng lúc trong 1 tin nhắn
         const images = [];
         const caption = `[ ${(mediaData.source || "AUTODOWN").toUpperCase()} ]\n👤 Tác giả: ${mediaData.author || "Không rõ"}\n💬 Tiêu đề: ${mediaData.title || "Không có"}`;
 
